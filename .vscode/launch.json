@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-BoleteApplication<bolete>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.bolete.BoleteApplication",
+            "projectName": "bolete",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
