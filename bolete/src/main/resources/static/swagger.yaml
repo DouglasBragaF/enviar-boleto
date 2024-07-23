@@ -1,0 +1,59 @@
+openapi: 3.1.0
+info:
+  title: Bolete API
+  summary: API de envio automático de boletos 
+  description: |
+    API é configurada com uma pasta local
+    API lê a pasta local periodicamente e envia os boletos em PDF para clientes cadastrados nela
+  
+  termsOfService: https://bolete.com/terms/
+  contact:
+    name: API Support
+    url: https://www.bolete.com/support
+    email: support@tinytale.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+
+externalDocs:
+  description: Find out more about Swagger
+  url: 'http://swagger.io'
+
+servers:
+  - url: http://localhost:8080/
+    description: The local development API server
+
+paths:
+  
+
+components:
+  schemas:
+    GeneralError:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
+
+  responses:
+    IllegalInput:
+      description: Illegal input for operation.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+    NotFound:
+      description: Entity not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
+    GeneralError:
+      description: General error.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/GeneralError'
