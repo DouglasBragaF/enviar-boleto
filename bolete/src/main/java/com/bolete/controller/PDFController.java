@@ -1,5 +1,7 @@
 package com.bolete.controller;
 
+import java.text.ParseException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +18,7 @@ public class PDFController {
   private PDFService pdfService;
 
   @PostMapping("/processar")
-  public void processarBoletos(@RequestParam String folderPath) {
+  public void processarBoletos(@RequestParam String folderPath) throws ParseException {
     pdfService.processPDFsInFolder(folderPath);
   }
 }

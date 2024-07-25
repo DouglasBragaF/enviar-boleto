@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.bolete.dtos.BoletoDTO;
 import com.bolete.models.Boleto;
 import com.bolete.models.Titular;
+import com.bolete.openai.services.ExtrairCamposService;
 import com.bolete.repository.BoletoRepository;
 import com.bolete.repository.TitularRepository;
 
@@ -32,6 +33,11 @@ public class PDFService {
 
   @Autowired
   private TitularRepository titularRepository;
+
+  @Autowired
+  private ExtrairCamposService extrairCamposService;
+
+  public boolean hasTriedValidation = false;
 
   /**
    * Processa todos os arquivos PDF em uma pasta especificada e retorna as URLs
@@ -87,6 +93,13 @@ public class PDFService {
     // System.out.println("IMPRIMINDO PDF: " + file.getName());
     // System.out.println(pdfStripper.getText(document));
     String text = pdfStripper.getText(document);
+
+    // tenta validação com chatGPT
+    if(!hasTriedValidation) {
+      extrairCamposService.extrairCampos(text);
+      hasTriedValidation = true;
+
+    }
 
     String nomeTitular = extractNomeTitular(text);
 
