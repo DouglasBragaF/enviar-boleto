@@ -25,6 +25,10 @@ servers:
     description: The local development API server
 
 paths:
+
+  
+
+
   
 
 components:
@@ -37,7 +41,7 @@ components:
           format: int32
         message:
           type: string
-
+  
   responses:
     IllegalInput:
       description: Illegal input for operation.
