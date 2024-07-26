@@ -7,32 +7,18 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.bolete.dtos.BoletoDTO;
-import com.bolete.models.Boleto;
-import com.bolete.models.Titular;
 import com.bolete.openai.services.ExtrairCamposService;
-import com.bolete.repository.BoletoRepository;
-import com.bolete.repository.TitularRepository;
 
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
-import org.hibernate.mapping.Set;
 
 @Service
 public class PDFService {
-
-  @Autowired
-  private BoletoRepository boletoRepository;
-
-  @Autowired
-  private TitularRepository titularRepository;
 
   @Autowired
   private ExtrairCamposService extrairCamposService;
@@ -79,23 +65,23 @@ public class PDFService {
    */
   private void extractBoletoFromPDF(File file) throws IOException, ParseException {
 
-    String parcela = "Exemplo Parcela"; // Extraído do PDF
-    String pdfPath = file.getPath();
-    String aluno = "Nome do Aluno Extraído"; // Extraído do PDF
+    // String parcela = "Exemplo Parcela"; // Extraído do PDF
+    // String pdfPath = file.getPath();
+    // String aluno = "Nome do Aluno Extraído"; // Extraído do PDF
 
-    String contatoTitular = "Contato do Titular Extraído"; // Extraído do PDF
+    // String contatoTitular = "Contato do Titular Extraído"; // Extraído do PDF
 
     PDDocument document = null;
-  
+
     document = PDDocument.load(file);
-    
+
     PDFTextStripper pdfStripper = new PDFTextStripper();
     // System.out.println("IMPRIMINDO PDF: " + file.getName());
     // System.out.println(pdfStripper.getText(document));
     String text = pdfStripper.getText(document);
 
     // tenta validação com chatGPT
-    if(!hasTriedValidation) {
+    if (!hasTriedValidation) {
       extrairCamposService.extrairCampos(text);
       hasTriedValidation = true;
 
@@ -104,7 +90,7 @@ public class PDFService {
     String nomeTitular = extractNomeTitular(text);
 
     System.out.println(nomeTitular);
-    if(nomeTitular.isEmpty()) {
+    if (nomeTitular.isEmpty()) {
       System.out.println("Nome do titular não encontrado no PDF " + file.getName());
       return;
     }
@@ -112,24 +98,23 @@ public class PDFService {
     String vencimento = extractVencimento(text);
 
     System.out.println(vencimento);
-    if(vencimento.isEmpty()) {
+    if (vencimento.isEmpty()) {
       System.out.println("Vencimento não encontrado no PDF " + file.getName());
       return;
     }
 
-
     // Buscar ou criar o Titular
     // Titular titular = titularRepository.findByNome(nomeTitular).orElseGet(() -> {
-    //   Titular novoTitular = new Titular();
-    //   novoTitular.setNome(nomeTitular);
-    //   novoTitular.setContato(contatoTitular);
-    //   return titularRepository.save(novoTitular);
+    // Titular novoTitular = new Titular();
+    // novoTitular.setNome(nomeTitular);
+    // novoTitular.setContato(contatoTitular);
+    // return titularRepository.save(novoTitular);
     // });
 
-    // A ideia é jogar o BoletoDTO para a api de titulares na nuvem, usando restTemplate
+    // A ideia é jogar o BoletoDTO para a api de titulares na nuvem, usando
+    // restTemplate
     // return new BoletoDTO(null, ciclo, parcela, pdfPath, aluno, titular);
   }
-
 
   private String extractVencimento(String fullText) throws ParseException {
 
@@ -143,22 +128,21 @@ public class PDFService {
     // o vencimento sempre vai ser no futuro
 
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-    
+
     Date minDate = null;
     Date maxDate = null;
     Date midDate = null;
 
-
-    for(int i = 0; matcher.find(i); i = matcher.end()) {
+    for (int i = 0; matcher.find(i); i = matcher.end()) {
       // System.out.println("Data encontrada " + matcher.group());
 
       String data = matcher.group();
       Date date = dateFormat.parse(data);
       if (minDate == null || date.before(minDate) || date.equals(minDate)) {
-          minDate = date;
+        minDate = date;
       } else {
         if (maxDate == null || date.after(maxDate) || date.equals(maxDate)) {
-            maxDate = date;
+          maxDate = date;
         } else {
           midDate = date;
         }
@@ -167,7 +151,7 @@ public class PDFService {
 
     String identificador = dateFormat.format(midDate);
     int indexData = fullText.indexOf(identificador);
-    if(indexData == -1) {
+    if (indexData == -1) {
       System.out.println("Não há identificador necessário no PDF!");
     } else {
       return identificador;
@@ -176,18 +160,18 @@ public class PDFService {
   }
 
   private String extractNomeTitular(String fullText) {
-    
+
     String identificador = "Pagador";
     int pagador = fullText.indexOf(identificador);
-    if(pagador == -1) {
+    if (pagador == -1) {
       System.out.println("Não há identificador necessário no PDF!");
     }
 
     String subString = fullText.substring(pagador + identificador.length()).trim();
 
     String[] lines = subString.split("\n");
-    if(lines.length > 0) {
-      
+    if (lines.length > 0) {
+
       String nomePagador = lines[0].split(" - ")[0].trim();
       return nomePagador;
     } else {
@@ -196,6 +180,5 @@ public class PDFService {
 
     return "";
   }
-
 
 }
